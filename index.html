@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  	<title>Photo framer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="robots" content="index, follow" />
+    <meta name="author" content="Rajat Goel">
+    <link rel="stylesheet" href="./simple-grid.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+		<script src="https://unpkg.com/konva@9.2.1/konva.min.js"></script>
+
+  </head>
+  <body>
+		<div class="container">
+			<div class="row">
+				<div class="col-8" id="preview_window">
+						<!--canvas id="preview_canvas"-->
+				</div>
+				<div class="col-4">
+						Main Image: <input type="file" id="main_image" accept="image/*">
+						User Image: <input type="file" id="user_image" accept="image/*">
+						<button id="download">Download/Save</button>
+				</div>
+			</div>
+		</div>
+
+
+		<script type="text/javascript">
+			var canvas_width;
+			var main_image = new Image();
+			var user_image = new Image();
+			var stage;
+
+			$(window).on('load', function(){
+			    canvas_width = $("#preview_window").width();
+			});
+
+			$('#main_image').on('change', function(){
+				if (this.files && this.files[0]) {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+            main_image.src = e.target.result;
+        	}
+					reader.readAsDataURL(this.files[0]);
+				}
+			});
+
+			$('#user_image').on('change', function(){
+				if (this.files && this.files[0]) {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+            user_image.src = e.target.result;
+            preview();
+        	}
+					reader.readAsDataURL(this.files[0]);
+				}
+			});
+
+			$('#download').on('click', function(){
+					var dataURL = stage.toDataURL({ pixelRatio: 3 });
+          downloadURI(dataURL, 'stage.png');
+			});
+
+			function preview() {
+				stage = new Konva.Stage({
+	        container: 'preview_window',
+	        width: canvas_width,
+	        height: 1000,
+	        draggable: true
+	      });
+
+	      var main_layer = new Konva.Layer();
+      	var user_layer = new Konva.Layer();
+      	var text_layer = new Konva.Layer();
+      	stage.add(main_layer);
+      	stage.add(user_layer);
+      	stage.add(text_layer);
+
+
+   			var main_image_k = new Konva.Image({
+   				image: main_image,
+   				width: canvas_width,
+   				height: main_image.height/main_image.width*canvas_width
+   			});
+   			main_layer.add(main_image_k);
+
+   			var user_image_k = new Konva.Image({
+	   				image: user_image,
+	   				width: canvas_width/10,
+	   				height: main_image.height/main_image.width*canvas_width/10,
+	   				draggable: true
+	   			});
+	   		user_layer.add(user_image_k);
+
+	   		var simpleText = new Konva.Text({
+	        text: 'Amitabh bachan',
+	        fontFamily: 'Calibri',
+	        fill: 'white',
+	      });
+				text_layer.add(simpleText);
+
+			}
+
+			function downloadURI(uri, name) {
+        var link = document.createElement('a');
+        link.download = name;
+        link.href = uri;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        delete link;
+      }
+
+		</script>
+  </body>
+</html>
